@@ -36,10 +36,15 @@ export default class ViewNotification extends LightningElement {
     }
 
     getUserData().then(data => {
-    
+      this.userId = this.generateChatUserId(data.Id);
+      this.userName = data.Name;
+      this.profileType = "url";
+      this.profileValue = data.SmallPhotoUrl;
+      this.profileImageUrl = data.SmallPhotoUrl;
+      this.error = null;
     })
     .catch(error => {
-
+      this.error = error;
     });
 
   };
