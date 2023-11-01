@@ -34,7 +34,7 @@ export default class ViewNotification extends LightningElement {
     if (!isEmpAvailable) {
       this.error = "unavailable";
     }
-1
+
     getUserData().then(data => {
     
     })
