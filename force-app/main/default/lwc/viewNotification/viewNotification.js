@@ -72,7 +72,7 @@ export default class ViewNotification extends LightningElement {
     this.dispatchEvent(
       new ShowToastEvent({
         variant: "info",
-        title: message
+        title: user.Name && "さんが表示中"
       })
     );
   };
