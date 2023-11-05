@@ -51,12 +51,6 @@ export default class ViewNotification extends LightningElement {
     const messageCallback = (response) => {
       console.log("New message received: ", JSON.stringify(response));
       if (response.data.payload.ViewUserId__c !== Id && response.data.payload.RecordId__c === this.recordId) {
-        this.map.set(response.data.payload.ViewUserId__c, response.data.payload);
-
-        this.data = Object.entries(this.map).map(([key, value]) => ({
-          key,
-          value
-        }));
 
         this.message =
           response.data.payload.ViewUserName__c +
@@ -64,7 +58,20 @@ export default class ViewNotification extends LightningElement {
           response.data.payload.ViewDateTime__c +
           ":" +
           response.data.payload.EventType__c;
+
         this.showToast(this.message);
+
+        if(response.data.payload.EventType__c === "join") {
+          this.map.set(response.data.payload.ViewUserId__c, response.data.payload);
+        } else if (response.data.payload.EventType__c === "leave") {
+          this.map.delete(response.data.payload.ViewUserId__c);
+        }
+
+        this.data = Object.entries(this.map).map(([key, value]) => ({
+          key,
+          value
+        }));
+        
       }
       // Response contains the payload of the new message received
     };
