@@ -2,12 +2,14 @@
  * @description       :
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             :
- * @last modified on  : 11-01-2023
+ * @last modified on  : 11-02-2023
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
  **/
 public with sharing class ViewNotificationController {
-  @AuraEnabled(cacheable=false)
+
+  @AuraEnabled(cacheable=true)
   public static User getUserData() {
+    System.debug('Call getUserData');
     return [
       SELECT Id, Name, SmallPhotoUrl
       FROM User
@@ -15,12 +17,12 @@ public with sharing class ViewNotificationController {
     ];
   }
 
-  @AuraEnabled(cacheable=false)
+  @AuraEnabled(cacheable=true)
   public static User getUserDataById(string UserId) {
     return [SELECT Id, Name, SmallPhotoUrl FROM User WHERE Id = :UserId];
   }
 
-  @AuraEnabled(cacheable=false)
+  @AuraEnabled
   public static void publish(String recordId) {
     Id id = recordId;
     DescribeSObjectResult describe = id.getSobjectType().getDescribe();

@@ -1,83 +1,73 @@
-import { LightningElement, api, wire } from "lwc";
-import { subscribe, unsubscribe, isEmpEnabled } from "lightning/empApi";
-import getUserData from "@salesforce/apex/ViewNotificationController.getUserData";
-import getUserDataById from "@salesforce/apex/ViewNotificationController.getUserDataById";
+import { LightningElement, api, track, wire } from "lwc";
+import { subscribe, unsubscribe, onError, setDebugFlag, isEmpEnabled } from 'lightning/empApi';
+
+// https://salesforceblue.com/using-lightning-empapi-module-in-lwc/
+
+//import { ShowToastEvent } from 'lightning/platformShowToastEvent'
+//import getUserData from "@salesforce/apex/ViewNotificationController.getUserData";
+//import getUserDataById from "@salesforce/apex/ViewNotificationController.getUserDataById";
 
 export default class ViewNotification extends LightningElement {
-  @api objectApiName;
-  @api recordId;
-  channelName = "/event/ViewNotification__e";
 
+  channelName = '/event/ViewNotification__e';
+  isSubscribeDisabled = false;
+  isUnsubscribeDisabled = !this.isSubscribeDisabled;
   subscription = {};
+  message;
 
-  userId = "";
-  userName = "";
-  profileType = "";
-  profileValue = "";
-  profileImageUrl;
-
-  @wire(getUserData)
-  wiredUserData({ error, data }) {
-    if (data) {
-      this.userId = this.generateChatUserId(data.Id);
-      this.userName = data.Name;
-      this.profileType = "url";
-      this.profileValue = data.SmallPhotoUrl;
-      this.profileImageUrl = data.SmallPhotoUrl;
-      this.error = null;
-    } else if (error) {
-      this.error = error;
-    }
+  // Tracks changes to channelName text field
+  handleChannelName(event) {
+      this.channelName = event.target.value;
   }
 
-  connectedCallback = async () => {
-    const isEmpAvailable = await isEmpEnabled();
-    if (!isEmpAvailable) {
-      this.error = "unavailable";
-    }
+  // Initializes the component
+  connectedCallback() {
+      // Register error listener
+      this.registerErrorListener();
+  }
 
-    getUserData()
-      .then((data) => {
-        this.userId = this.generateChatUserId(data.Id);
-        this.userName = data.Name;
-        this.profileType = "url";
-        this.profileValue = data.SmallPhotoUrl;
-        this.profileImageUrl = data.SmallPhotoUrl;
-        this.error = null;
-      })
-      .catch((error) => {
-        this.error = error;
+  // Handles subscribe button click
+  handleSubscribe() {
+      // Callback invoked whenever a new event message is received
+      const messageCallback = (response) => {
+          console.log('New message received: ', JSON.stringify(response));
+          this.message = response.data.payload.ViewUserId__c;
+          // Response contains the payload of the new message received
+      };
+
+      // Invoke subscribe method of empApi. Pass reference to messageCallback
+      subscribe(this.channelName, -1, messageCallback).then((response) => {
+          // Response contains the subscription information on subscribe call
+          console.log(
+              'Subscription request sent to: ',
+              JSON.stringify(response.channel)
+          );
+          this.subscription = response;
+          this.toggleSubscribeButton(true);
       });
-    
-    const subscription = await subscribe(
-      this.channelName,
-      -1,
-      (event) => this.handleNotificationEvent(event)
-    );
-    this.subscription = subscription;
+  }
 
-  };
+  // Handles unsubscribe button click
+  handleUnsubscribe() {
+      this.toggleSubscribeButton(false);
 
-  // Callback invoked whenever a new event message is received
-  async handleNotificationEvent(event) {
-    console.dir(event);
-    const objectName = event.data.payload.ObjectName__c;
-    const receiveRecordId = event.data.payload.RecordId__c;
-    const viewDateTime = new Date(event.data.payload.ViewDateTime__c);
-    const viewUserId = event.data.payload.viewUserId__c;
+      // Invoke unsubscribe method of empApi
+      unsubscribe(this.subscription, (response) => {
+          console.log('unsubscribe() response: ', JSON.stringify(response));
+          // Response is true for successful unsubscribe
+      });
+  }
 
-    if (objectApiName == objectName && this.recordId == receiveRecordId) return;
+  toggleSubscribeButton(enableSubscribe) {
+      this.isSubscribeDisabled = enableSubscribe;
+      this.isUnsubscribeDisabled = !enableSubscribe;
+  }
 
-    const user = await getUserDataById(viewUserId);
-    this.dispatchEvent(
-      new ShowToastEvent({
-        variant: "info",
-        title: user.Name && "さんが表示中"
-      })
-    );
-  };
-
-  generateChatUserId(userId) {
-    return userId + Math.floor(Math.random() * 10000) + Date.now();
+  registerErrorListener() {
+      // Invoke onError empApi method
+      onError((error) => {
+          console.log('Received error from server: ', JSON.stringify(error));
+          // Error contains the server-side error
+      });
   }
 }
