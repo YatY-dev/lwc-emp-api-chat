@@ -4,6 +4,9 @@
   @group             : 
   @last modified on  : 11-05-2023
   @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+
+  avator
+  https://qiita.com/geeorgey/items/ff2ab9503091366dfb7d
 -->
 <template>
     <lightning-card title="EmpApi Example" icon-name="custom:custom14">
@@ -41,4 +44,45 @@
             Message:  {message}
         </div>
     </lightning-card>
+
+    <lightning-card title="ViewUsers" icon-name="utility:animal_and_nature">
+        <div class="slds-card__body slds-card__body_inner">
+            <!-- Start item list -->
+            <template if:true={data}>
+                <lightning-layout multiple-rows="true" pull-to-boundary="small">
+                    <template for:each={data} for:item="item">
+                        <lightning-layout-item key={item.Id} size="3" class="slds-var-p-around_x-small">
+                            <lightning-avatar src={d.iconurl} fallback-icon-name="standard:user" alternative-text="User avatar" variant="circle">
+                            </lightning-avatar>
+                            <!-- Start item tile -->
+                            <lightning-card title={item.Name} class="item-tile">
+                                <div class="slds-var-p-horizontal_small item-tile-body">
+                                    <div class="slds-media">
+                                        <div class="slds-media__figure">
+                                            <img src={appResources.itemSilhouette} alt="item profile" class="item-silhouette"/>
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <p class="slds-var-m-bottom_xx-small">{item.Sex__c}</p>
+                                            <p class="slds-var-m-bottom_xx-small">{item.Age__c} years old</p>
+                                            <p class="slds-var-m-bottom_xx-small">{item.Height__c} cm</p>
+                                            <p class="slds-var-m-bottom_xx-small">{item.Weight__c} Kg</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning-card>
+                            <!-- End item tile -->
+                        </lightning-layout-item>
+                    </template>
+                </lightning-layout>
+            </template>
+            <!-- End item list -->
+            <!-- Data failed to load -->
+            <template if:true={error}>
+                <div class="slds-text-color_error">
+                    An error occurred while loading the item list
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+
 </template>

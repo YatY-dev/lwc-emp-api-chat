@@ -2,7 +2,7 @@
  * @description       :
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             :
- * @last modified on  : 11-02-2023
+ * @last modified on  : 11-05-2023
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
  **/
 public with sharing class ViewNotificationController {
@@ -23,19 +23,25 @@ public with sharing class ViewNotificationController {
   }
 
   @AuraEnabled
-  public static void publish(String recordId) {
+  public static void publish(String recordId, String eventType) {
     Id id = recordId;
     DescribeSObjectResult describe = id.getSobjectType().getDescribe();
+
+    User u = getUserData();
 
     List<ViewNotification__e> notifications = new List<ViewNotification__e>();
     notifications.add(
       new ViewNotification__e(
         ObjectName__c = describe.getName(),
         RecordId__c = recordId,
-        ViewDateTime__c = DateTime.now(),
-        viewUserId__c = UserInfo.getUserId()
+        ViewDateTime__c = DateTime.now().format('yyyy/MM/dd HH:mm', 'JST'),
+        viewUserId__c = UserInfo.getUserId(),
+        viewUserName__c = UserInfo.getName(),
+        eventType__c = eventType,
+        SmallPhotoUrl__c = u.SmallPhotoUrl
       )
     );
+System.debug('notifications:' + notifications);
 
     List<Database.SaveResult> results = EventBus.publish(notifications);
     for (Database.SaveResult sr : results) {
