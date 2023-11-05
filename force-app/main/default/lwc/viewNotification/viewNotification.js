@@ -25,9 +25,8 @@ export default class ViewNotification extends LightningElement {
   message;
   @api recordId;
   map = new Map();
-  data;
-
-
+  data = [];
+  
   // Tracks changes to channelName text field
   handleChannelName(event) {
     this.channelName = event.target.value;
@@ -62,16 +61,15 @@ export default class ViewNotification extends LightningElement {
         this.showToast(this.message);
 
         if(response.data.payload.EventType__c === "join") {
-          this.map.set(response.data.payload.ViewUserId__c, response.data.payload);
+          console.log("join!!!");
+          this.map.set(response.data.payload.ViewUserId__c, JSON.stringify(response.data.payload));
         } else if (response.data.payload.EventType__c === "leave") {
           this.map.delete(response.data.payload.ViewUserId__c);
         }
-
-        this.data = Object.entries(this.map).map(([key, value]) => ({
-          key,
-          value
-        }));
-        
+        this.data = Object.keys(this.map).map(key=> ({ key: key, ...this.map[key] }));
+        console.log(this.map.values());
+        console.log(this.map.keys());
+        console.log(this.map.entries());
       }
       // Response contains the payload of the new message received
     };
