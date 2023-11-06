@@ -7,13 +7,6 @@ import {
 import publish from "@salesforce/apex/ViewNotificationController.publish";
 import Id from "@salesforce/user/Id";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-// https://salesforceblue.com/using-lightning-empapi-module-in-lwc/
-//import { ShowToastEvent } from 'lightning/platformShowToastEvent'
-//import getUserData from "@salesforce/apex/ViewNotificationController.getUserData";
-//import getUserDataById from "@salesforce/apex/ViewNotificationController.getUserDataById";
-
-// Mapをリストにして表示する方法
-// https://salesforce.stackexchange.com/questions/409900/how-do-you-display-a-js-map-in-lwc
 
 export default class ViewNotification extends LightningElement {
   channelName = "/event/ViewNotification__e";
@@ -25,6 +18,9 @@ export default class ViewNotification extends LightningElement {
   map = new Map();
   data = [];
   uuid = crypto.randomUUID();
+  event;
+  count = 0;
+  maxCount = 20;
 
   // Tracks changes to channelName text field
   handleChannelName(event) {
@@ -62,15 +58,20 @@ export default class ViewNotification extends LightningElement {
         if (response.data.payload.EventType__c === "join") {
           if (
             this.data.find(
-              (el) => el.ViewUserId__c === response.data.payload.ViewUserId__c
+              (el) => el.Uuid__c === response.data.payload.Uuid__c
             ) === undefined
           ) {
             this.data.push(response.data.payload);
           }
         } else if (response.data.payload.EventType__c === "leave") {
           this.data = this.data.filter(
-            (el) => el.ViewUserId__c !== response.data.payload.ViewUserId__c
+            (el) => el.Uuid__c !== response.data.payload.Uuid__c
           );
+        } else if (response.data.payload.EventType__c === "ping") {
+          this.data = this.data.filter(
+            (el) => el.Uuid__c !== response.data.payload.Uuid__c
+          );
+          this.data.push(response.data.payload);
         }
 
         console.log(this.data);
@@ -90,6 +91,16 @@ export default class ViewNotification extends LightningElement {
     });
 
     this.buildEvent("join");
+
+    this.event = setInterval(() => {
+      this.count++;
+      console.log(this.count);
+      this.buildEvent('ping');
+      if (this.count === this.maxCount) {
+        clearInterval(this.event);
+        this.event = undefined;
+      }
+    }, 30000);
   }
 
   // Handles unsubscribe button click
@@ -103,6 +114,8 @@ export default class ViewNotification extends LightningElement {
       console.log("unsubscribe() response: ", JSON.stringify(response));
       // Response is true for successful unsubscribe
     });
+
+    clearInterval(this.event);
   }
 
   toggleSubscribeButton(enableSubscribe) {
@@ -124,7 +137,7 @@ export default class ViewNotification extends LightningElement {
       eventType: eventType,
       uuid: this.uuid
     };
-    await publish(data).catch(console.log("error!!"));
+    await publish(data).catch(console.log("error"));
   }
 
   showToast(message) {
