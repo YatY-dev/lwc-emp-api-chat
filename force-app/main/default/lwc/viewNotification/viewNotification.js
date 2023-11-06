@@ -1,10 +1,8 @@
-import { LightningElement, api, track, wire } from "lwc";
+import { LightningElement, api } from "lwc";
 import {
   subscribe,
   unsubscribe,
-  onError,
-  setDebugFlag,
-  isEmpEnabled
+  onError
 } from "lightning/empApi";
 import publish from "@salesforce/apex/ViewNotificationController.publish";
 import Id from "@salesforce/user/Id";
@@ -26,7 +24,7 @@ export default class ViewNotification extends LightningElement {
   @api recordId;
   map = new Map();
   data = [];
-
+  uuid = crypto.randomUUID();
 
   // Tracks changes to channelName text field
   handleChannelName(event) {
@@ -49,9 +47,10 @@ export default class ViewNotification extends LightningElement {
   handleSubscribe() {
     // Callback invoked whenever a new event message is received
     const messageCallback = (response) => {
-      console.log("New message received: ", JSON.stringify(response));
-      if (response.data.payload.ViewUserId__c !== Id && response.data.payload.RecordId__c === this.recordId) {
-
+      if (
+        response.data.payload.ViewUserId__c !== Id &&
+        response.data.payload.RecordId__c === this.recordId
+      ) {
         this.message =
           response.data.payload.ViewUserName__c +
           ":" +
@@ -59,18 +58,23 @@ export default class ViewNotification extends LightningElement {
           ":" +
           response.data.payload.EventType__c;
 
-        this.showToast(this.message);
+        //this.showToast(this.message);
 
         if (response.data.payload.EventType__c === "join") {
-          if (this.data.find(el => el.ViewUserId__c === response.data.payload.ViewUserId__c) === undefined) {
+          if (
+            this.data.find(
+              (el) => el.ViewUserId__c === response.data.payload.ViewUserId__c
+            ) === undefined
+          ) {
             this.data.push(response.data.payload);
           }
         } else if (response.data.payload.EventType__c === "leave") {
-          this.data = this.data.filter(el => el.ViewUserId__c !== response.data.payload.ViewUserId__c);
+          this.data = this.data.filter(
+            (el) => el.ViewUserId__c !== response.data.payload.ViewUserId__c
+          );
         }
 
         console.log(this.data);
-
       }
       // Response contains the payload of the new message received
     };
@@ -118,7 +122,8 @@ export default class ViewNotification extends LightningElement {
   async buildEvent(eventType) {
     const data = {
       recordId: this.recordId,
-      eventType: eventType
+      eventType: eventType,
+      uuid: this.uuid
     };
     await publish(data).catch(console.log("error!!"));
   }

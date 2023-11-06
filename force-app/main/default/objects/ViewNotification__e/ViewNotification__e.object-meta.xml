@@ -3,6 +3,5 @@
     <deploymentStatus>Deployed</deploymentStatus>
     <eventType>HighVolume</eventType>
     <label>ViewNotification</label>
-    <pluralLabel>ViewNotifications</pluralLabel>
     <publishBehavior>PublishImmediately</publishBehavior>
 </CustomObject>

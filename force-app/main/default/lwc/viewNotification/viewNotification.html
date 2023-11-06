@@ -5,79 +5,74 @@
   @last modified on  : 11-06-2023
   @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 
-  avator
-  https://qiita.com/geeorgey/items/ff2ab9503091366dfb7d
+  https://jappy.hatenablog.com/entry/2018/07/18/020617
 -->
 <template>
-    <lightning-card title="EmpApi Example" icon-name="custom:custom14">
-        <div class="slds-m-around_medium">
-            <p>
-                Use the buttons below to subscribe and unsubscribe to a
-                streaming channel!
-            </p>
-            <lightning-input
-                label="Channel Name"
-                value={channelName}
-                onchange={handleChannelName}
-            ></lightning-input>
-        </div>
-        <lightning-button
-                variant="success"
-                label="Subscribe"
-                title="Subscribe"
-                onclick={handleSubscribe}
-                disabled={isSubscribeDisabled}
-                class="slds-m-left_x-small"
-            ></lightning-button>
-            <lightning-button
-                variant="destructive"
-                label="Unsubscribe"
-                title="Unsubscribe"
-                onclick={handleUnsubscribe}
-                disabled={isUnsubscribeDisabled}
-                class="slds-m-left_x-small"
-            ></lightning-button>
-    </lightning-card>
+  <lightning-card title="EmpApi Example" icon-name="custom:custom14">
+    <div class="slds-m-around_medium">
+      <p>
+        Use the buttons below to subscribe and unsubscribe to a streaming
+        channel!
+      </p>
+      <lightning-input
+        label="Channel Name"
+        value={channelName}
+        onchange={handleChannelName}
+      ></lightning-input>
+    </div>
+    <lightning-button
+      variant="success"
+      label="Subscribe"
+      title="Subscribe"
+      onclick={handleSubscribe}
+      disabled={isSubscribeDisabled}
+      class="slds-m-left_x-small"
+    ></lightning-button>
+    <lightning-button
+      variant="destructive"
+      label="Unsubscribe"
+      title="Unsubscribe"
+      onclick={handleUnsubscribe}
+      disabled={isUnsubscribeDisabled}
+      class="slds-m-left_x-small"
+    ></lightning-button>
+  </lightning-card>
 
-    <lightning-card title="Message received from platform event">
-        <div class="slds-m-around_medium">
-            Message:  {message}
-        </div>
-    </lightning-card>
+  <lightning-card title="Message received from platform event">
+    <div class="slds-m-around_medium">Message: {message}</div>
+  </lightning-card>
 
-    <lightning-card title="ViewUsers" icon-name="utility:anywhere_alert">
-        <div class="slds-card__body slds-card__body_inner">
-            <!-- Start item list -->
-            <template if:true={data}>
-                <lightning-layout multiple-rows="true" pull-to-boundary="large">
-                    <template for:each={data} for:item="item">
-                        <lightning-layout-item key={item.ViewUserId__c} size="3" class="slds-var-p-around_x-large">
-                            <!-- Start item tile -->
-                            <lightning-card title={item.Name} class="item-tile">
-                                <lightning-avatar src={item.SmallPhotoUrl__c} fallback-icon-name="standard:user" alternative-text="User avatar" variant="circle">
-                                </lightning-avatar>
-                                <div class="slds-var-p-horizontal_large item-tile-body">
-                                    <div class="slds-media">
-                                        <div class="slds-media__body">
-                                            <p class="slds-var-m-bottom_xx-large">{item.ViewUserName__c}</p>
-                                            <p class="slds-var-m-bottom_xx-large">{item.ViewDateTime__c}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </lightning-card>
-                            <!-- End item tile -->
-                        </lightning-layout-item>
-                    </template>
-                </lightning-layout>
-            </template>
-            <!-- End item list -->
-            <!-- Data failed to load -->
-            <template if:true={error}>
-                <div class="slds-text-color_error">
-                    An error occurred while loading the item list
+  <lightning-card title="表示中のユーザ" icon-name="utility:anywhere_alert">
+    <div class="slds-card__body slds-card__body_inner">
+      <template if:true={data}>
+        <lightning-layout multiple-rows="true" pull-to-boundary="small">
+          <template for:each={data} for:item="item">
+            <lightning-layout-item
+              key={item.ViewUserId__c}
+              size="6"
+              class="slds-var-p-around_x-small"
+            >
+              <lightning-card class="bear-tile">
+                <div class="slds-var-p-horizontal_small bear-tile-body">
+                  <div class="slds-media">
+                    <div class="slds-media__figure">
+                      <img
+                        src={item.SmallPhotoUrl__c}
+                        alt="View history"
+                        class="silhouette"
+                      />
+                    </div>
+                    <div class="slds-tile__detail slds-text-body_small">
+                        <p><b>ユーザ名 :</b> {item.ViewUserName__c} </p>
+                        <p><b>表示時刻 :</b> {item.ViewDateTime__c}</p>
+                    </div>
+                  </div>
                 </div>
-            </template>
-        </div>
-    </lightning-card>
-
+              </lightning-card>
+            </lightning-layout-item>
+          </template>
+        </lightning-layout>
+      </template>
+    </div>
+  </lightning-card>
 </template>
