@@ -62,14 +62,15 @@ export default class ViewNotification extends LightningElement {
         this.showToast(this.message);
 
         if(response.data.payload.EventType__c === "join") {
-          if(this.data.find(el => el.ViewUserId__c === response.data.payload.ViewUserId__c) === undefined) {
-            this.data.push(response.data.payload);
-          }
+          this.map.set(response.data.payload.ViewUserId__c, response.data.payload);
         } else if (response.data.payload.EventType__c === "leave") {
           this.data = this.data.filter(el => el.ViewUserId__c !== response.data.payload.ViewUserId__c);
         }
 
-        console.log(this.data);
+        this.data = Object.entries(this.map).map(([key, value]) => ({
+          key,
+          value
+        }));
         
       }
       // Response contains the payload of the new message received
