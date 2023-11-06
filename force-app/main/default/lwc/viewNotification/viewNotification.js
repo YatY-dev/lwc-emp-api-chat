@@ -53,10 +53,9 @@ export default class ViewNotification extends LightningElement {
       ) {
         this.message =
           response.data.payload.ViewUserName__c +
-          ":" +
+          "さんが" +
           response.data.payload.ViewDateTime__c +
-          ":" +
-          response.data.payload.EventType__c;
+          "に表示を開始";
 
         //this.showToast(this.message);
 
