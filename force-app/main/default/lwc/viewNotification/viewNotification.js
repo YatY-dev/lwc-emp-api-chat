@@ -1,10 +1,11 @@
-import { LightningElement, api } from "lwc";
+import { LightningElement, api, wire  } from "lwc";
 import {
   subscribe,
   unsubscribe,
   onError
 } from "lightning/empApi";
 import publish from "@salesforce/apex/ViewNotificationController.publish";
+import getNowJST from '@salesforce/apex/ViewNotificationController.getNowJST';
 import Id from "@salesforce/user/Id";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 
@@ -14,13 +15,26 @@ export default class ViewNotification extends LightningElement {
   isUnsubscribeDisabled = !this.isSubscribeDisabled;
   subscription = {};
   message;
-  @api recordId;
   map = new Map();
   data = [];
   uuid = crypto.randomUUID();
   event;
   count = 0;
   maxCount = 20;
+  now;
+  @api recordId;
+
+  @wire(getNowJST)
+  wiredRecord({ error, data }) {
+    console.log('getNowJST');
+    if (data) {
+      this.now = data;
+      this.error = undefined;
+    } else if (error) {
+      this.error = error.body.message;
+      this.now = undefined;
+    }
+  }
 
   // Tracks changes to channelName text field
   handleChannelName(event) {
@@ -132,12 +146,19 @@ export default class ViewNotification extends LightningElement {
   }
 
   async buildEvent(eventType) {
+    console.log("this.now");
+    
+    console.log(this.now);
     const data = {
       recordId: this.recordId,
       eventType: eventType,
+      now: this.now,
       uuid: this.uuid
     };
-    await publish(data).catch(console.log("error"));
+    await publish(data)
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   showToast(message) {

@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 11-06-2023
+ * @last modified on  : 11-07-2023
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @IsTest
@@ -36,6 +36,13 @@ public with sharing class ViewNotificationControllerTest {
         Assert.isNotNull(u);
     }
 
+    
+    @IsTest
+    private static void getNowJSTTest() {
+        string now = ViewNotificationController.getNowJST();
+        Assert.isNotNull(now);
+    }
+
     @IsTest
     private static void getUserDataTestById() {
         User testUser = [Select Id From User Limit 1];
@@ -46,6 +53,6 @@ public with sharing class ViewNotificationControllerTest {
     @IsTest
     private static void publishTest() {
         Account a1 = [Select Id, Name From Account Limit1];
-        ViewNotificationController.publish(a1.Id, 'join', '550e8400-e29b-41d4-a716-446655440000');
+        ViewNotificationController.publish(a1.Id, 'join', '', '550e8400-e29b-41d4-a716-446655440000');
     }
 }

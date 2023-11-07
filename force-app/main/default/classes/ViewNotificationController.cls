@@ -2,7 +2,7 @@
  * @description       :
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             :
- * @last modified on  : 11-06-2023
+ * @last modified on  : 11-07-2023
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
  **/
 public with sharing class ViewNotificationController {
@@ -18,12 +18,17 @@ public with sharing class ViewNotificationController {
   }
 
   @AuraEnabled(cacheable=true)
+  public static String getNowJST(){
+    return DateTime.now().format('yyyy/MM/dd HH:mm', 'JST');
+  }
+
+  @AuraEnabled(cacheable=true)
   public static User getUserDataById(string UserId) {
     return [SELECT Id, Name, SmallPhotoUrl FROM User WHERE Id = :UserId];
   }
 
   @AuraEnabled
-  public static void publish(String recordId, String eventType, String uuid) {
+  public static void publish(String recordId, String eventType, String now, String uuid) {
     Id id = recordId;
     DescribeSObjectResult describe = id.getSobjectType().getDescribe();
 
@@ -34,7 +39,7 @@ public with sharing class ViewNotificationController {
       new ViewNotification__e(
         ObjectName__c = describe.getName(),
         RecordId__c = recordId,
-        ViewDateTime__c = DateTime.now().format('yyyy/MM/dd HH:mm', 'JST'),
+        ViewDateTime__c = now,
         ViewUserId__c = UserInfo.getUserId(),
         ViewUserName__c = UserInfo.getName(),
         EventType__c = eventType,
