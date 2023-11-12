@@ -17,6 +17,7 @@ export default class ViewNotification extends LightningElement {
   event;
   count = 0;
   maxCount = 20;
+  interval = 10000;
   now;
   @api recordId;
 
@@ -124,7 +125,7 @@ export default class ViewNotification extends LightningElement {
         clearInterval(this.event);
         this.event = undefined;
       }
-    }, 30000);
+    }, this.interval);
   }
 
   // Handles unsubscribe button click
