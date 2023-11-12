@@ -1,11 +1,7 @@
-import { LightningElement, api, wire  } from "lwc";
-import {
-  subscribe,
-  unsubscribe,
-  onError
-} from "lightning/empApi";
+import { LightningElement, api, wire } from "lwc";
+import { subscribe, unsubscribe, onError } from "lightning/empApi";
 import publish from "@salesforce/apex/ViewNotificationController.publish";
-import getNowJST from '@salesforce/apex/ViewNotificationController.getNowJST';
+import getNowJST from "@salesforce/apex/ViewNotificationController.getNowJST";
 import Id from "@salesforce/user/Id";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 
@@ -24,17 +20,17 @@ export default class ViewNotification extends LightningElement {
   now;
   @api recordId;
 
-  @wire(getNowJST)
-  wiredRecord({ error, data }) {
-    console.log('getNowJST');
-    if (data) {
-      this.now = data;
-      this.error = undefined;
-    } else if (error) {
-      this.error = error.body.message;
-      this.now = undefined;
-    }
-  }
+  // @wire(getNowJST)
+  // wiredRecord({ error, data }) {
+  //   console.log('getNowJST');
+  //   if (data) {
+  //     this.now = data;
+  //     this.error = undefined;
+  //   } else if (error) {
+  //     this.error = error.body.message;
+  //     this.now = undefined;
+  //   }
+  // }
 
   // Tracks changes to channelName text field
   handleChannelName(event) {
@@ -42,11 +38,20 @@ export default class ViewNotification extends LightningElement {
   }
 
   // Initializes the component
-  connectedCallback() {
-    // Register error listener
-    this.registerErrorListener();
+  async connectedCallback() {
+    await getNowJST()
+      .then((data) => {
+        this.now = data;
+        console.log(this.now);
 
-    this.handleSubscribe();
+        // Register error listener
+        this.registerErrorListener();
+    
+        this.handleSubscribe();
+      })
+      .catch((error) => {
+        this.error = error;
+      });
   }
 
   disconnectedCallback() {
@@ -56,6 +61,7 @@ export default class ViewNotification extends LightningElement {
   // Handles subscribe button click
   handleSubscribe() {
     // Callback invoked whenever a new event message is received
+
     const messageCallback = (response) => {
       if (
         response.data.payload.ViewUserId__c !== Id &&
@@ -72,21 +78,25 @@ export default class ViewNotification extends LightningElement {
         if (response.data.payload.EventType__c === "join") {
           if (
             this.data.find(
-              (el) => el.Uuid__c === response.data.payload.Uuid__c
+              (el) => el.ViewUserId__c === response.data.payload.ViewUserId__c
             ) === undefined
           ) {
             this.data.push(response.data.payload);
           }
         } else if (response.data.payload.EventType__c === "leave") {
           this.data = this.data.filter(
-            (el) => el.Uuid__c !== response.data.payload.Uuid__c
+            (el) => el.ViewUserId__c !== response.data.payload.ViewUserId__c
           );
         } else if (response.data.payload.EventType__c === "ping") {
           this.data = this.data.filter(
-            (el) => el.Uuid__c !== response.data.payload.Uuid__c
+            (el) => el.ViewUserId__c !== response.data.payload.ViewUserId__c
           );
           this.data.push(response.data.payload);
         }
+
+        this.data.sort((first, second) => {
+          return first.ViewUserId__c > second.ViewUserId__c
+        });
 
         console.log(this.data);
       }
@@ -109,7 +119,7 @@ export default class ViewNotification extends LightningElement {
     this.event = setInterval(() => {
       this.count++;
       console.log(this.count);
-      this.buildEvent('ping');
+      this.buildEvent("ping");
       if (this.count === this.maxCount) {
         clearInterval(this.event);
         this.event = undefined;
@@ -147,7 +157,7 @@ export default class ViewNotification extends LightningElement {
 
   async buildEvent(eventType) {
     console.log("this.now");
-    
+
     console.log(this.now);
     const data = {
       recordId: this.recordId,
@@ -155,10 +165,9 @@ export default class ViewNotification extends LightningElement {
       now: this.now,
       uuid: this.uuid
     };
-    await publish(data)
-      .catch(error => {
-        console.error(error);
-      });
+    await publish(data).catch((error) => {
+      console.error(error);
+    });
   }
 
   showToast(message) {
