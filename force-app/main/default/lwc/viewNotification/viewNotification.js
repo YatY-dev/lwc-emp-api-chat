@@ -117,13 +117,18 @@ export default class ViewNotification extends LightningElement {
 
     this.buildEvent("join");
 
-    this.event = setInterval(() => {
-      this.count++;
-      console.log(this.count);
-      this.buildEvent("ping");
-      if (this.count === this.maxCount) {
-        clearInterval(this.event);
-        this.event = undefined;
+    this.event = window.setInterval(() => {
+      if (this.template.querySelector('div').offsetParent === null) { 
+        clearInterval(this.event); 
+        console.log('stopped the interval'); 
+      } else {
+        this.count++;
+        console.log(this.count);
+        this.buildEvent("ping");
+        if (this.count === this.maxCount) {
+          clearInterval(this.event);
+          this.event = undefined;
+        }
       }
     }, this.interval);
   }
