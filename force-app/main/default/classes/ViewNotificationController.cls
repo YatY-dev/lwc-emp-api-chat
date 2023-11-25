@@ -2,7 +2,7 @@
  * @description       :
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             :
- * @last modified on  : 11-07-2023
+ * @last modified on  : 11-25-2023
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
  **/
 public with sharing class ViewNotificationController {
@@ -19,7 +19,7 @@ public with sharing class ViewNotificationController {
 
   @AuraEnabled(cacheable=true)
   public static String getNowJST(){
-    return DateTime.now().format('yyyy/MM/dd HH:mm', 'JST');
+    return DateTime.now().format('yyyy-MM-dd HH:mm:ss', 'JST');
   }
 
   @AuraEnabled(cacheable=true)
@@ -44,7 +44,8 @@ public with sharing class ViewNotificationController {
         ViewUserName__c = UserInfo.getName(),
         EventType__c = eventType,
         SmallPhotoUrl__c = u.SmallPhotoUrl,
-        Uuid__c = uuid
+        Uuid__c = uuid,
+        LastViewDateTime__c = DateTime.now().format('yyyy-MM-dd HH:mm:ss', 'JST')
       )
     );
 

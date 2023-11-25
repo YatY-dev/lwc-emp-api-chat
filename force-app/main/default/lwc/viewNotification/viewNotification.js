@@ -21,18 +21,6 @@ export default class ViewNotification extends LightningElement {
   now;
   @api recordId;
 
-  // @wire(getNowJST)
-  // wiredRecord({ error, data }) {
-  //   console.log('getNowJST');
-  //   if (data) {
-  //     this.now = data;
-  //     this.error = undefined;
-  //   } else if (error) {
-  //     this.error = error.body.message;
-  //     this.now = undefined;
-  //   }
-  // }
-
   // Tracks changes to channelName text field
   handleChannelName(event) {
     this.channelName = event.target.value;
@@ -43,11 +31,11 @@ export default class ViewNotification extends LightningElement {
     await getNowJST()
       .then((data) => {
         this.now = data;
-        console.log(this.now);
-
+        console.log("getNowJST:" + this.now);
+        console.log("formatted:" + this.formatDate(data));
         // Register error listener
         this.registerErrorListener();
-    
+
         this.handleSubscribe();
       })
       .catch((error) => {
@@ -96,10 +84,8 @@ export default class ViewNotification extends LightningElement {
         }
 
         this.data.sort((first, second) => {
-          return first.ViewUserId__c > second.ViewUserId__c
+          return first.ViewUserId__c > second.ViewUserId__c;
         });
-
-        console.log(this.data);
       }
       // Response contains the payload of the new message received
     };
@@ -118,10 +104,35 @@ export default class ViewNotification extends LightningElement {
     this.buildEvent("join");
 
     this.event = window.setInterval(() => {
-      if (this.template.querySelector('div').offsetParent === null) { 
-        clearInterval(this.event); 
-        console.log('stopped the interval'); 
+      if (this.template.querySelector("div").offsetParent === null) {
+        clearInterval(this.event);
+        this.event = undefined;
+        console.log("stopped the interval");
       } else {
+        
+        this.data = this.data.filter(
+          (el) => {
+            const d1 = this.formatDate(new Date().toLocaleString('ja-JP', {
+              timeZone: 'Asia/Tokyo',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            }));
+            const d2 = this.formatDate(el.LastViewDateTime__c);
+            const diff = d1.getTime() - d2.getTime();
+            console.log("d1:" + d1);
+            console.log("d2:" + d2);
+            console.log("diff a:" + diff);
+            return diff < this.interval;
+          }
+        );
+        this.data.sort((first, second) => {
+          return first.ViewUserId__c > second.ViewUserId__c;
+        });
+
         this.count++;
         console.log(this.count);
         this.buildEvent("ping");
@@ -162,9 +173,6 @@ export default class ViewNotification extends LightningElement {
   }
 
   async buildEvent(eventType) {
-    console.log("this.now");
-
-    console.log(this.now);
     const data = {
       recordId: this.recordId,
       eventType: eventType,
@@ -188,5 +196,16 @@ export default class ViewNotification extends LightningElement {
       //dismissable sticky+pester
     });
     this.dispatchEvent(event);
+  }
+
+  formatDate(dateString){
+    //2023-11-25 21:24:20
+    const year = parseInt(dateString.substring(0, 4));  //20231
+    const month = parseInt(dateString.substring(5, 7)); //11
+    const day = parseInt(dateString.substring(8, 10));  //25
+    const hour = parseInt(dateString.substring(8, 10)); //21
+    const min = parseInt(dateString.substring(11, 13)); //24
+    const ss = parseInt(dateString.substring(14, 16));  //20
+    return new Date(year, month - 1, day, hour, min, ss);
   }
 }
