@@ -18,6 +18,7 @@ export default class ViewNotification extends LightningElement {
   count = 0;
   maxCount = 20;
   interval = 10000;
+  precision = 2000;
   now;
   @api recordId;
 
@@ -103,6 +104,8 @@ export default class ViewNotification extends LightningElement {
 
     this.buildEvent("join");
 
+
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
     this.event = window.setInterval(() => {
       if (this.template.querySelector("div").offsetParent === null) {
         clearInterval(this.event);
@@ -112,7 +115,7 @@ export default class ViewNotification extends LightningElement {
         
         this.data = this.data.filter(
           (el) => {
-            const d1 = this.formatDate(new Date().toLocaleString('ja-JP', {
+            const s = new Date().toLocaleString('ja-JP', {
               timeZone: 'Asia/Tokyo',
               year: 'numeric',
               month: '2-digit',
@@ -120,15 +123,21 @@ export default class ViewNotification extends LightningElement {
               hour: '2-digit',
               minute: '2-digit',
               second: '2-digit'
-            }));
+            });
+            const d1 = this.formatDate(s);
             const d2 = this.formatDate(el.LastViewDateTime__c);
             const diff = d1.getTime() - d2.getTime();
+
+            console.log("s:" + s);
+            console.log("LastViewDateTime__c:" + el.LastViewDateTime__c);
             console.log("d1:" + d1);
             console.log("d2:" + d2);
-            console.log("diff a:" + diff);
-            return diff < this.interval;
+            console.log("diff d:" + diff);
+
+            return diff < (this.interval + this.precision);
           }
         );
+
         this.data.sort((first, second) => {
           return first.ViewUserId__c > second.ViewUserId__c;
         });
@@ -203,9 +212,10 @@ export default class ViewNotification extends LightningElement {
     const year = parseInt(dateString.substring(0, 4));  //20231
     const month = parseInt(dateString.substring(5, 7)); //11
     const day = parseInt(dateString.substring(8, 10));  //25
-    const hour = parseInt(dateString.substring(8, 10)); //21
-    const min = parseInt(dateString.substring(11, 13)); //24
-    const ss = parseInt(dateString.substring(14, 16));  //20
+    const hour = parseInt(dateString.substring(11, 13)); //21
+    const min = parseInt(dateString.substring(14, 16)); //24
+    const ss = parseInt(dateString.substring(17));  //20
+    console.log(year + "/" + month + "/" + day + " " + hour + ":" + min + ":" + ss);
     return new Date(year, month - 1, day, hour, min, ss);
   }
 }
