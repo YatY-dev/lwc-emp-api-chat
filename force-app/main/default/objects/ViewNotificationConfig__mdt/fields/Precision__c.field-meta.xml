@@ -8,7 +8,7 @@
     <inlineHelpText>双方向通信が発生しない場合にIntervalに加えてどの程度誤差を許容するかの時間（ミリ秒）を指定します。</inlineHelpText>
     <label>Interval誤差</label>
     <precision>18</precision>
-    <required>false</required>
+    <required>true</required>
     <scale>0</scale>
     <type>Number</type>
     <unique>false</unique>

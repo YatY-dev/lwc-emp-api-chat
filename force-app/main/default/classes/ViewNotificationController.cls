@@ -2,7 +2,7 @@
  * @description       :
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             :
- * @last modified on  : 11-25-2023
+ * @last modified on  : 11-26-2023
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
  **/
 public with sharing class ViewNotificationController {
@@ -15,6 +15,22 @@ public with sharing class ViewNotificationController {
       FROM User
       WHERE Id = :UserInfo.getUserId()
     ];
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static ViewNotificationConfig__mdt getMetaData() {
+    System.debug('Call getMetaData');
+
+    ViewNotificationConfig__mdt targetData;
+    List<ViewNotificationConfig__mdt> datas = ViewNotificationConfig__mdt.getall().values();
+    for(ViewNotificationConfig__mdt data : datas) {
+      if (data.DeveloperName == 'Default') {
+        targetData = data;
+        break;
+      }
+    }
+    System.debug('targetData:' + targetData);
+    return targetData;
   }
 
   @AuraEnabled(cacheable=true)
