@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Precision__c</fullName>
+    <defaultValue>0</defaultValue>
+    <description>双方向通信が発生しない場合にIntervalに加えてどの程度誤差を許容するかの時間（ミリ秒）を指定します。</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>双方向通信が発生しない場合にIntervalに加えてどの程度誤差を許容するかの時間（ミリ秒）を指定します。</inlineHelpText>
+    <label>Interval誤差</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>
