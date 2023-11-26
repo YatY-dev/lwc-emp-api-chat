@@ -10,7 +10,6 @@ export default class ViewNotification extends LightningElement {
   isSubscribeDisabled = false;
   isUnsubscribeDisabled = !this.isSubscribeDisabled;
   subscription = {};
-  message;
   map = new Map();
   data = [];
   uuid = crypto.randomUUID();
@@ -57,14 +56,6 @@ export default class ViewNotification extends LightningElement {
         response.data.payload.ViewUserId__c !== Id &&
         response.data.payload.RecordId__c === this.recordId
       ) {
-        this.message =
-          response.data.payload.ViewUserName__c +
-          "さんが" +
-          response.data.payload.ViewDateTime__c +
-          "に表示を開始";
-
-        //this.showToast(this.message);
-
         if (response.data.payload.EventType__c === "join") {
           if (
             this.data.find(
@@ -130,8 +121,6 @@ export default class ViewNotification extends LightningElement {
 
             console.log("s:" + s);
             console.log("LastViewDateTime__c:" + el.LastViewDateTime__c);
-            console.log("d1:" + d1);
-            console.log("d2:" + d2);
             console.log("diff d:" + diff);
 
             return diff < (this.interval + this.precision);
@@ -215,7 +204,7 @@ export default class ViewNotification extends LightningElement {
     const hour = parseInt(dateString.substring(11, 13)); //21
     const min = parseInt(dateString.substring(14, 16)); //24
     const ss = parseInt(dateString.substring(17));  //20
-    console.log(year + "/" + month + "/" + day + " " + hour + ":" + min + ":" + ss);
+    //console.log(year + "/" + month + "/" + day + " " + hour + ":" + min + ":" + ss);
     return new Date(year, month - 1, day, hour, min, ss);
   }
 }
