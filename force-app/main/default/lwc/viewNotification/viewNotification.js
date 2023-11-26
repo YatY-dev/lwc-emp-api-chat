@@ -12,6 +12,7 @@ export default class ViewNotification extends LightningElement {
   subscription = {};
   map = new Map();
   data = [];
+  cloned = [];
   uuid = crypto.randomUUID();
   event;
   count = 0;
@@ -51,33 +52,36 @@ export default class ViewNotification extends LightningElement {
   handleSubscribe() {
     // Callback invoked whenever a new event message is received
 
-    const messageCallback = (response) => {
+    const messageCallback = async (response) => {
       if (
         response.data.payload.ViewUserId__c !== Id &&
         response.data.payload.RecordId__c === this.recordId
       ) {
+        this.cloned = [...this.data];
+
         if (response.data.payload.EventType__c === "join") {
           if (
-            this.data.find(
+            this.cloned.find(
               (el) => el.ViewUserId__c === response.data.payload.ViewUserId__c
             ) === undefined
           ) {
-            this.data.push(response.data.payload);
+            this.cloned.push(response.data.payload);
           }
         } else if (response.data.payload.EventType__c === "leave") {
-          this.data = this.data.filter(
+          this.cloned = this.cloned.filter(
             (el) => el.ViewUserId__c !== response.data.payload.ViewUserId__c
           );
         } else if (response.data.payload.EventType__c === "ping") {
-          this.data = this.data.filter(
+          this.cloned = this.cloned.filter(
             (el) => el.ViewUserId__c !== response.data.payload.ViewUserId__c
           );
-          this.data.push(response.data.payload);
+          this.cloned.push(response.data.payload);
         }
 
-        this.data.sort((first, second) => {
+        await this.cloned.sort((first, second) => {
           return first.ViewUserId__c > second.ViewUserId__c;
         });
+        this.data = this.cloned;
       }
       // Response contains the payload of the new message received
     };
@@ -119,17 +123,11 @@ export default class ViewNotification extends LightningElement {
             const d2 = this.formatDate(el.LastViewDateTime__c);
             const diff = d1.getTime() - d2.getTime();
 
-            console.log("s:" + s);
-            console.log("LastViewDateTime__c:" + el.LastViewDateTime__c);
             console.log("diff d:" + diff);
 
             return diff < (this.interval + this.precision);
           }
         );
-
-        this.data.sort((first, second) => {
-          return first.ViewUserId__c > second.ViewUserId__c;
-        });
 
         this.count++;
         console.log(this.count);
