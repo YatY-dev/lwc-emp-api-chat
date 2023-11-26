@@ -64,12 +64,12 @@ public with sharing class ViewNotificationControllerTest {
         Account a1 = [Select Id, Name From Account Limit1];
         ViewNotificationController.publish(a1.Id, 'join', '', '550e8400-e29b-41d4-a716-446655440000');
     }
-
     
     @IsTest
     private static void getMetaDataTest() {
         ViewNotificationConfig__mdt meta = ViewNotificationController.getMetaData();
         Assert.isNotNull(meta);
         Assert.areEqual(10000, meta.Interval__c);
+        Assert.areEqual(2000, meta.Precision__c);
     }
 }

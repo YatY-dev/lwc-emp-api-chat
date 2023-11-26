@@ -2,6 +2,7 @@ import { LightningElement, api, wire } from "lwc";
 import { subscribe, unsubscribe, onError } from "lightning/empApi";
 import publish from "@salesforce/apex/ViewNotificationController.publish";
 import getNowJST from "@salesforce/apex/ViewNotificationController.getNowJST";
+import getMetaData from "@salesforce/apex/ViewNotificationController.getMetaData";
 import Id from "@salesforce/user/Id";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 
@@ -29,6 +30,19 @@ export default class ViewNotification extends LightningElement {
 
   // Initializes the component
   async connectedCallback() {
+
+    await getMetaData()
+    .then((data) => {
+      this.interval = data.Interval__c;
+      this.precision = data.Precision__c;
+
+      console.log("interval:" + this.interval);
+      console.log("precision:" + this.precision);
+    })
+    .catch((error) => {
+      this.error = error;
+    });
+
     await getNowJST()
       .then((data) => {
         this.now = data;
