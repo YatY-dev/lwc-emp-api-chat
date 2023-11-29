@@ -7,6 +7,10 @@
         <value xsi:type="xsd:double">10000.0</value>
     </values>
     <values>
+        <field>IterationCount__c</field>
+        <value xsi:type="xsd:double">20.0</value>
+    </values>
+    <values>
         <field>Precision__c</field>
         <value xsi:type="xsd:double">2000.0</value>
     </values>

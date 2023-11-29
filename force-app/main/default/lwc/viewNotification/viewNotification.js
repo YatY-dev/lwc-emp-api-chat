@@ -35,9 +35,11 @@ export default class ViewNotification extends LightningElement {
     .then((data) => {
       this.interval = data.Interval__c;
       this.precision = data.Precision__c;
+      this.maxCount = data.IterationCount__c;
 
       console.log("interval:" + this.interval);
       console.log("precision:" + this.precision);
+      console.log("maxCount:" + this.maxCount);
     })
     .catch((error) => {
       this.error = error;
@@ -119,6 +121,8 @@ export default class ViewNotification extends LightningElement {
       if (this.template.querySelector("div").offsetParent === null) {
         clearInterval(this.event);
         this.event = undefined;
+        this.data = [];
+        this.cloned = [];
         console.log("stopped the interval");
       } else {
         
